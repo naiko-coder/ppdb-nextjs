@@ -1,0 +1,12 @@
+.main {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+  font-family: sans-serif;
+  background: #f9f9f9;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px #0001;
+}
