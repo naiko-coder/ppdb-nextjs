@@ -6,13 +6,7 @@ import Link from 'next/link';
 export default function Home() {
   return (
     <main className={styles.main}>
-      <h1 style={{
-        fontSize: "2.5rem",
-        fontWeight: "bold",
-        color: "#06258a",
-        marginBottom: 16,
-        textAlign: "center"
-      }}>
+      <h1 className={styles.judulPPDB}>
         PPDB Tahun 2026-2027
       </h1>
       <h1 className={styles.title} style={{ color: "black" }}>Selamat Datang di TK IT Cendekia</h1>
