@@ -9,7 +9,7 @@ export default function Home() {
       <h1 className={styles.judulPPDB}>
         PPDB Tahun 2026-2027
       </h1>
-      <h1 className={styles.title} style={{ color: "black" }}>Selamat Datang di TK IT Cendekia</h1>
+      <h1 className={styles.title} style={{ color: "black" }}>Selamat Datang di .........</h1>
       <h2 className={styles.title}></h2>
       <div style={{ marginTop: 32, display: 'flex', gap: 16 }}>
         <Link href="/Registrasi">
