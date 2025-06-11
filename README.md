@@ -11,7 +11,8 @@
 - **Notifikasi & Pengumuman:** Informasi terbaru dan pengumuman penting langsung melalui aplikasi.
 
 > **Catatan:**  
-> Proyek ini **masih dalam tahap pengembangan aktif**. Fitur-fitur utama masih dapat berubah dan penambahan fitur akan terus dilakukan.  
+> Proyek ini **masih dalam tahap pengembangan aktif**. Fitur-fitur utama masih dapat berubah dan penambahan fitur akan terus dilakukan.
+> Saat ini, tampilan antarmuka masih dalam tahap perencanaan. Fokus utama saat ini adalah memastikan seluruh fitur dapat berfungsi dengan baik terlebih dahulu
 > **Domain resmi aplikasi akan diumumkan menyusul** setelah pengembangan lebih lanjut.
 
 ## Teknologi yang Digunakan
