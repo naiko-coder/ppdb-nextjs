@@ -23,27 +23,8 @@
 - [MySQL](https://www.mysql.com/) untuk manajemen data utama
 - Library dan dependency pendukung lainnya (lihat `package.json`)
 
-## Cara Menjalankan Proyek (Development)
-
-1. **Clone repository:**
-   ```bash
-   git clone https://github.com/naiko-coder/ppdb-nextjs.git
-   cd ppdb-nextjs
-   ```
-
-2. **Install dependencies:**
-   ```bash
-   npm install
-   # atau
-   yarn install
-   ```
-
-3. **Jalankan development server:**
-   ```bash
-   npm run dev
-   # atau
-   yarn dev
-   ```
+---
 
 > **Status:**  
 > Proyek ini masih dalam pengembangan dan belum tersedia untuk publik.  
+> Namun, repository ini sengaja tidak dibuat private di GitHub agar dapat menjadi referensi, pembelajaran, dan kolaborasi terbuka bagi siapa saja yang tertarik dengan pengembangan sistem PPDB berbasis Next.js.
