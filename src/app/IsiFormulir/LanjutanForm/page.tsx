@@ -35,6 +35,7 @@ export default function LanjutanForm() {
   const [kabupatenList, setKabupatenList] = useState<any[]>([]);
   const [kecamatanList, setKecamatanList] = useState<any[]>([]);
   const [kelurahanList, setKelurahanList] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
 
   // Ambil data dari query, simpan ke sessionStorage, lalu redirect ke URL tanpa query
   useEffect(() => {
@@ -118,18 +119,73 @@ export default function LanjutanForm() {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  // Tambahkan handler untuk file upload
+  // Handler untuk file upload
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, files } = e.target;
-    setForm((prev) => ({
-      ...prev,
-      [name]: files && files.length > 0 ? files[0] : null,
-    }));
+    if (files && files.length > 0) {
+      if (files[0].size > 1048576) { // 1MB = 1048576 bytes
+        alert("Ukuran file maksimal 1MB!");
+        e.target.value = ""; // reset input file
+        setForm((prev) => ({
+          ...prev,
+          [name]: null,
+        }));
+        return;
+      }
+      setForm((prev) => ({
+        ...prev,
+        [name]: files[0],
+      }));
+    }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // Handler submit form
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    alert("Formulir lengkap berhasil disubmit!");
+    if (!form.file_kk || !form.file_akta) {
+      alert("File KK dan Akta wajib diupload!");
+      return;
+    }
+    setLoading(true);
+    try {
+      // 1. Upload file KK ke Google Drive
+      const formDataKK = new FormData();
+      formDataKK.append("file", form.file_kk);
+      const resKK = await fetch("/api/upload-drive", { method: "POST", body: formDataKK });
+      const dataKK = await resKK.json();
+      if (!dataKK.link) throw new Error("Gagal upload file KK");
+
+      // 2. Upload file Akta ke Google Drive
+      const formDataAkta = new FormData();
+      formDataAkta.append("file", form.file_akta);
+      const resAkta = await fetch("/api/upload-drive", { method: "POST", body: formDataAkta });
+      const dataAkta = await resAkta.json();
+      if (!dataAkta.link) throw new Error("Gagal upload file Akta");
+
+      // 3. Submit data form + link file ke backend
+      const res = await fetch("/api/submit-form", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...form,
+          nama: userData?.nama,
+          kode_registrasi: userData?.kode_registrasi,
+          file_kk: dataKK.link,
+          file_akta: dataAkta.link,
+        }),
+      });
+      const result = await res.json();
+      if (result.success) {
+        alert("Formulir berhasil disimpan!");
+        router.push("/Complete");
+        // Reset form jika perlu
+      } else {
+        alert("Gagal simpan: " + result.error);
+      }
+    } catch (err: any) {
+      alert("Terjadi error: " + err.message);
+    }
+    setLoading(false);
   };
 
   // Jangan render form sebelum data user tersedia
@@ -370,20 +426,21 @@ export default function LanjutanForm() {
         </div>
         <button
           type="submit"
+          disabled={loading}
           style={{
             width: "100%",
             padding: "10px",
             borderRadius: 6,
             border: "none",
-            background: "#0070f3",
+            background: loading ? "#aaa" : "#0070f3",
             color: "#fff",
             fontWeight: 600,
             fontSize: 16,
             marginTop: 16,
-            cursor: "pointer",
+            cursor: loading ? "not-allowed" : "pointer",
           }}
         >
-          Submit Formulir
+          {loading ? "Menyimpan..." : "Submit Formulir"}
         </button>
       </form>
     </main>

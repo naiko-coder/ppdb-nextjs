@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "googleapis": "^150.0.1",
     "mongodb": "^6.17.0",
     "mysql2": "^3.14.1",
     "next": "15.3.3",
