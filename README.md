@@ -1,36 +1,49 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# PPDB Next.js
 
-## Getting Started
+**PPDB Next.js** adalah aplikasi berbasis [Next.js](https://nextjs.org/) yang dirancang untuk mempermudah proses Penerimaan Peserta Didik Baru (PPDB) secara online. Proyek ini dibangun menggunakan teknologi modern demi memberikan pengalaman pendaftaran yang cepat, aman, dan efisien.
 
-First, run the development server:
+## Fitur Utama
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- **Pendaftaran Online:** Calon peserta didik dapat melakukan pendaftaran secara daring dengan mudah.
+- **Dashboard Admin & Peserta:** Pengelolaan data pendaftar dan status pendaftaran secara real-time.
+- **Upload Dokumen via Google Drive API:** Proses unggah dokumen menggunakan integrasi Google Drive API, sehingga file tidak tersimpan langsung di database MySQL, yang secara signifikan menghemat penggunaan storage pada server.
+- **Validasi & Verifikasi Data:** Data dan dokumen peserta diverifikasi secara digital.
+- **Notifikasi & Pengumuman:** Informasi terbaru dan pengumuman penting langsung melalui aplikasi.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+> **Catatan:**  
+> Proyek ini **masih dalam tahap pengembangan aktif**. Fitur-fitur utama masih dapat berubah dan penambahan fitur akan terus dilakukan.  
+> **Domain resmi aplikasi akan diumumkan menyusul** setelah pengembangan lebih lanjut.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Teknologi yang Digunakan
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- [Next.js](https://nextjs.org/)
+- [React](https://react.dev/)
+- [Tailwind CSS](https://tailwindcss.com/) untuk styling
+- [Google Drive API](https://developers.google.com/drive) untuk upload file
+- [MySQL](https://www.mysql.com/) untuk manajemen data utama
+- Library dan dependency pendukung lainnya (lihat `package.json`)
 
-## Learn More
+## Cara Menjalankan Proyek (Development)
 
-To learn more about Next.js, take a look at the following resources:
+1. **Clone repository:**
+   ```bash
+   git clone https://github.com/naiko-coder/ppdb-nextjs.git
+   cd ppdb-nextjs
+   ```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+2. **Install dependencies:**
+   ```bash
+   npm install
+   # atau
+   yarn install
+   ```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+3. **Jalankan development server:**
+   ```bash
+   npm run dev
+   # atau
+   yarn dev
+   ```
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+> **Status:**  
+> Proyek ini masih dalam pengembangan dan belum tersedia untuk publik.  
