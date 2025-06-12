@@ -1,29 +1,38 @@
-import { NextResponse } from "next/server";
-import mysql from "mysql2/promise";
+import { NextResponse } from 'next/server';
+import mysql from 'mysql2/promise';
 
 const dbConfig = {
-  host: "localhost",
-  user: "root",
-  password: "",
-  database: "db_registrasi",
+  host: 'localhost',
+  user: 'root',
+  password: '',
+  database: 'db_registrasi',
 };
 
 export async function POST(request) {
   const data = await request.json();
+  const { nama, kode_registrasi } = data;
   try {
     const conn = await mysql.createConnection(dbConfig);
-    await conn.execute(
-      `INSERT INTO ppdb_pendaftar 
-      (nama, kode_registrasi, email, alamat, provinsi, kabupaten, kecamatan, kelurahan, nik, no_kk, file_kk, file_akta)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [
-        data.nama, data.kode_registrasi, data.email, data.alamat, data.provinsi, data.kabupaten,
-        data.kecamatan, data.kelurahan, data.nik, data.no_kk, data.file_kk, data.file_akta
-      ]
+
+    // Cek apakah ada data dengan nama dan kode_registrasi yang cocok
+    const [rows] = await conn.execute(
+      'SELECT id FROM pendaftar WHERE nama = ? AND kode_registrasi = ?',
+      [nama, kode_registrasi]
     );
+
     await conn.end();
-    return NextResponse.json({ success: true });
+
+    if (rows.length > 0) {
+      // Data ditemukan, boleh lanjut
+      return NextResponse.json({ valid: true });
+    } else {
+      // Data tidak ditemukan, error
+      return NextResponse.json({
+        valid: false,
+        error: "Nama dan kode registrasi tidak cocok atau tidak ditemukan di server."
+      }, { status: 404 });
+    }
   } catch (err) {
-    return NextResponse.json({ success: false, error: err.message }, { status: 500 });
+    return NextResponse.json({ valid: false, error: err.message }, { status: 500 });
   }
 }
