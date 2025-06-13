@@ -82,6 +82,18 @@ PPDB-TK/
 - **Status:**  
   Proyek masih dalam tahap pengembangan aktif. Fitur dan tampilan dapat berubah sewaktu-waktu.
 
+- **Roadmap & Rencana Pengembangan:**  
+  - **Dashboard Admin:**  
+    Dalam waktu dekat akan tersedia dashboard khusus admin untuk memantau, memverifikasi, dan mengelola data pendaftar secara lebih mudah dan terpusat.
+  - **Manajemen Data & Laporan:**  
+    Fitur manajemen data peserta, rekapitulasi, dan ekspor laporan pendaftaran sedang dalam tahap perencanaan dan pengembangan.
+  - **Hak Akses & Multi-User:**  
+    Akan ditambahkan sistem hak akses untuk admin, operator, dan panitia, sehingga pengelolaan data lebih aman dan terstruktur.
+  - **Notifikasi Otomatis:**  
+    Rencana penambahan notifikasi otomatis via email/WhatsApp untuk update status pendaftaran.
+  - **Fitur Lain:**  
+    Ide dan masukan lain masih terus dikumpulkan dan didiskusikan untuk pengembangan aplikasi yang lebih baik ke depannya.
+
 ---
 
 ## Kontribusi
@@ -95,3 +107,5 @@ Silakan buat issue atau pull request jika ingin berkolaborasi.
 >
 > &copy; 2025 PPDB TK.  
 > Aplikasi ini dikembangkan untuk mendukung digitalisasi administrasi sekolah dan dapat digunakan sebagai referensi pengembangan PPDB online di Indonesia.
+
+---
