@@ -1,274 +1,100 @@
-"use client";
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import Cookies from "js-cookie";
+import { cookies } from "next/headers";
 import jwt from "jsonwebtoken";
+import LogoutButton from "./LogoutButton";
+import PendaftarTable from "./PendaftarTable";
 
-const JWT_SECRET = process.env.NEXT_PUBLIC_JWT_SECRET || "secret";
+const JWT_SECRET = process.env.JWT_SECRET || "secret";
 
-export default function Dashboard() {
-  const router = useRouter();
-  const [sidebarOpen, setSidebarOpen] = useState(true);
-
-  const stats = [
-    { label: "Total Pendaftar", value: 120, icon: "👨‍🎓", color: "#007bff" },
-    { label: "Sudah Diverifikasi", value: 85, icon: "✅", color: "#28a745" },
-    { label: "Belum Diverifikasi", value: 35, icon: "⏳", color: "#ffc107" },
-  ];
-
-  const handleLogout = async () => {
-    await fetch("/api/logout", { method: "POST" });
-    router.push("/Login");
-  };
-
-  useEffect(() => {
-    const token = Cookies.get("token");
-    if (!token) {
-      router.replace("/Login");
-      return;
-    }
+export default async function Dashboard() {
+  const cookieStore = await cookies();
+  const token = cookieStore.get("token")?.value;
+  let isAuthorized = false;
+  if (token) {
     try {
       jwt.verify(token, JWT_SECRET);
+      isAuthorized = true;
     } catch {
-      router.replace("/Login");
+      isAuthorized = false;
     }
-  }, [router]);
+  }
+
+  if (!isAuthorized) {
+    return (
+      <main className="min-h-screen flex items-center justify-center bg-gray-100">
+        <div className="bg-white rounded-lg shadow-lg p-8 text-center">
+          <h1 className="text-5xl font-bold text-red-500 mb-2">401</h1>
+          <h2 className="text-2xl font-semibold mb-2">Unauthorized</h2>
+          <p className="text-gray-500">Anda tidak memiliki akses ke halaman ini.</p>
+        </div>
+      </main>
+    );
+  }
+
+  // Dummy data pendaftar
+  const dataPendaftar = [
+    { id: 1, nama: "Budi Santoso", tanggal: "2025-06-16", status: "Terverifikasi" },
+    { id: 2, nama: "Siti Aminah", tanggal: "2025-06-15", status: "Belum" },
+    { id: 3, nama: "Andi Wijaya", tanggal: "2025-06-14", status: "Terverifikasi" },
+  ];
 
   return (
-    <div style={{ minHeight: "100vh", background: "#f4f6f9", display: "flex" }}>
+    <div className="min-h-screen bg-gray-100 flex">
       {/* Sidebar */}
-      <aside
-        style={{
-          width: sidebarOpen ? 220 : 60,
-          background: "#343a40",
-          color: "#fff",
-          transition: "width 0.2s",
-          minHeight: "100vh",
-          position: "relative",
-          zIndex: 2,
-        }}
-      >
-        <div style={{ padding: "18px 16px", fontWeight: 700, fontSize: 20, letterSpacing: 1, display: "flex", alignItems: "center" }}>
-          <span style={{ fontSize: 28, marginRight: sidebarOpen ? 10 : 0 }}>🎓</span>
-          {sidebarOpen && "PPDB Admin"}
+      <aside className="w-64 bg-white shadow-lg hidden md:flex flex-col">
+        <div className="h-20 flex items-center justify-center border-b">
+          <span className="text-xl font-bold text-blue-600">PPDB Admin</span>
         </div>
-        <nav style={{ marginTop: 24 }}>
-          <SidebarLink icon="🏠" label="Dashboard" active={true} sidebarOpen={sidebarOpen} />
-          <SidebarLink icon="📋" label="Data Pendaftar" sidebarOpen={sidebarOpen} disabled />
-          <SidebarLink icon="📑" label="Laporan" sidebarOpen={sidebarOpen} disabled />
+        <nav className="flex-1 px-4 py-6 space-y-2">
+          <a className="flex items-center px-4 py-2 rounded-lg bg-blue-100 text-blue-700 font-semibold" href="#">
+            <span className="mr-3">🏠</span> Dashboard
+          </a>
+          <a className="flex items-center px-4 py-2 rounded-lg hover:bg-gray-100" href="#">
+            <span className="mr-3">📋</span> Data Pendaftar
+          </a>
+          <a className="flex items-center px-4 py-2 rounded-lg hover:bg-gray-100" href="#">
+            <span className="mr-3">📑</span> Laporan
+          </a>
         </nav>
-        <button
-          onClick={() => setSidebarOpen((v) => !v)}
-          style={{
-            position: "absolute",
-            top: 18,
-            right: -18,
-            width: 36,
-            height: 36,
-            borderRadius: "50%",
-            border: "none",
-            background: "#007bff",
-            color: "#fff",
-            fontWeight: 700,
-            fontSize: 18,
-            cursor: "pointer",
-            boxShadow: "0 2px 8px #0002",
-            zIndex: 3,
-            transition: "right 0.2s",
-          }}
-          title={sidebarOpen ? "Tutup Sidebar" : "Buka Sidebar"}
-        >
-          {sidebarOpen ? "⏪" : "⏩"}
-        </button>
       </aside>
 
       {/* Main Content */}
-      <div style={{ flex: 1, minHeight: "100vh", display: "flex", flexDirection: "column" }}>
+      <div className="flex-1 flex flex-col">
         {/* Header */}
-        <header
-          style={{
-            background: "#fff",
-            boxShadow: "0 2px 8px #0001",
-            padding: "16px 32px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            zIndex: 1,
-          }}
-        >
-          <div style={{ fontWeight: 700, fontSize: 20, color: "#007bff", letterSpacing: 1 }}>
-            Dashboard Admin
-          </div>
-          <button
-            onClick={handleLogout}
-            style={{
-              padding: "8px 22px",
-              borderRadius: 7,
-              border: "none",
-              background: "#dc3545",
-              color: "#fff",
-              fontWeight: 600,
-              fontSize: 15,
-              cursor: "pointer",
-              transition: "background 0.2s",
-            }}
-          >
-            Logout
-          </button>
+        <header className="bg-white shadow px-6 py-4 flex items-center justify-between">
+          <h1 className="text-2xl font-bold text-blue-700">Dashboard Admin</h1>
+          <LogoutButton />
         </header>
 
         {/* Statistik */}
-        <section
-          style={{
-            display: "flex",
-            gap: 24,
-            justifyContent: "flex-start",
-            margin: "36px 0 24px 0",
-            flexWrap: "wrap",
-            paddingLeft: 32,
-          }}
-        >
-          {stats.map((s, i) => (
-            <div
-              key={i}
-              style={{
-                background: "#fff",
-                borderRadius: 12,
-                boxShadow: "0 2px 12px #0001",
-                padding: "24px 32px",
-                minWidth: 200,
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                borderTop: `4px solid ${s.color}`,
-              }}
-            >
-              <div style={{ fontSize: 36, marginBottom: 8 }}>{s.icon}</div>
-              <div style={{ fontSize: 28, fontWeight: 700, color: s.color }}>{s.value}</div>
-              <div style={{ color: "#555", fontSize: 15, marginTop: 4 }}>{s.label}</div>
-            </div>
-          ))}
+        <section className="grid grid-cols-1 md:grid-cols-3 gap-6 px-6 py-6">
+          <StatCard label="Total Pendaftar" value={120} icon="👨‍🎓" color="blue" />
+          <StatCard label="Sudah Diverifikasi" value={85} icon="✅" color="green" />
+          <StatCard label="Belum Diverifikasi" value={35} icon="⏳" color="yellow" />
         </section>
 
-        {/* Tabel Data Pendaftar (dummy) */}
-        <section
-          style={{
-            background: "#fff",
-            borderRadius: 14,
-            boxShadow: "0 2px 12px #0001",
-            maxWidth: 1100,
-            margin: "0 32px 32px 32px",
-            padding: "32px 24px",
-          }}
-        >
-          <h2 style={{ fontSize: 20, fontWeight: 700, marginBottom: 18, color: "#222" }}>
-            Data Pendaftar Terbaru
-          </h2>
-          <div style={{ overflowX: "auto" }}>
-            <table style={{ width: "100%", borderCollapse: "collapse" }}>
-              <thead>
-                <tr style={{ background: "#f3f6fa" }}>
-                  <th style={thStyle}>No</th>
-                  <th style={thStyle}>Nama</th>
-                  <th style={thStyle}>Tanggal Daftar</th>
-                  <th style={thStyle}>Status</th>
-                  <th style={thStyle}>Aksi</th>
-                </tr>
-              </thead>
-              <tbody>
-                {[1, 2, 3].map((no) => (
-                  <tr key={no} style={{ borderBottom: "1px solid #eee" }}>
-                    <td style={tdStyle}>{no}</td>
-                    <td style={tdStyle}>Nama Pendaftar {no}</td>
-                    <td style={tdStyle}>2025-06-16</td>
-                    <td style={tdStyle}>
-                      {no % 2 === 0 ? (
-                        <span style={{ color: "#28a745", fontWeight: 600 }}>Terverifikasi</span>
-                      ) : (
-                        <span style={{ color: "#ffc107", fontWeight: 600 }}>Belum</span>
-                      )}
-                    </td>
-                    <td style={tdStyle}>
-                      <button
-                        style={{
-                          padding: "4px 14px",
-                          borderRadius: 6,
-                          border: "none",
-                          background: "#007bff",
-                          color: "#fff",
-                          fontWeight: 600,
-                          fontSize: 14,
-                          cursor: "pointer",
-                          marginRight: 8,
-                        }}
-                        disabled
-                      >
-                        Detail
-                      </button>
-                      <button
-                        style={{
-                          padding: "4px 14px",
-                          borderRadius: 6,
-                          border: "none",
-                          background: "#dc3545",
-                          color: "#fff",
-                          fontWeight: 600,
-                          fontSize: 14,
-                          cursor: "pointer",
-                        }}
-                        disabled
-                      >
-                        Hapus
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+        {/* Data Table */}
+        <section className="mx-6 mb-8">
+          <PendaftarTable />
         </section>
       </div>
     </div>
   );
 }
 
-function SidebarLink({ icon, label, active, sidebarOpen, disabled }: { icon: string; label: string; active?: boolean; sidebarOpen: boolean; disabled?: boolean }) {
+// Komponen statistik card
+function StatCard({ label, value, icon, color }: { label: string; value: number; icon: string; color: string }) {
+  const colorMap: any = {
+    blue: "bg-blue-100 text-blue-700",
+    green: "bg-green-100 text-green-700",
+    yellow: "bg-yellow-100 text-yellow-700",
+  };
   return (
-    <div
-      style={{
-        display: "flex",
-        alignItems: "center",
-        padding: sidebarOpen ? "12px 24px" : "12px 10px",
-        color: active ? "#007bff" : "#fff",
-        background: active ? "#fff" : "transparent",
-        fontWeight: active ? 700 : 500,
-        fontSize: 16,
-        cursor: disabled ? "not-allowed" : "pointer",
-        opacity: disabled ? 0.5 : 1,
-        borderLeft: active ? "4px solid #007bff" : "4px solid transparent",
-        marginBottom: 4,
-        transition: "all 0.2s",
-      }}
-      title={label}
-    >
-      <span style={{ fontSize: 20, marginRight: sidebarOpen ? 14 : 0 }}>{icon}</span>
-      {sidebarOpen && label}
+    <div className={`rounded-lg shadow flex items-center p-6 ${colorMap[color]} bg-opacity-80`}>
+      <div className="text-3xl mr-4">{icon}</div>
+      <div>
+        <div className="text-2xl font-bold">{value}</div>
+        <div className="text-sm">{label}</div>
+      </div>
     </div>
   );
 }
-
-const thStyle = {
-  padding: "10px 8px",
-  fontWeight: 700,
-  color: "#222",
-  fontSize: 15,
-  borderBottom: "2px solid #e0e7ff",
-  textAlign: "left" as const,
-};
-
-const tdStyle = {
-  padding: "10px 8px",
-  fontSize: 15,
-  color: "#333",
-  background: "#fff",
-};
