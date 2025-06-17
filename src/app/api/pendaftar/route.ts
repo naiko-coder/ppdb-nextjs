@@ -1,6 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import mysql from "mysql2/promise";
 
+const pool = mysql.createPool({
+  host: process.env.DB_HOST || "localhost",
+  user: process.env.DB_USER || "root",
+  password: process.env.DB_PASS || "",
+  database: process.env.DB_NAME || "nama_database", // ganti sesuai nama database kamu
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0,
+});
+
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const page = parseInt(searchParams.get("page") || "1");
@@ -9,27 +19,23 @@ export async function GET(request: NextRequest) {
 
   const offset = (page - 1) * limit;
 
-  const db = await mysql.createConnection({
-    host: process.env.DB_HOST,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASS,
-    database: process.env.DB_NAME,
-  });
-
-  // Query total data
-  const [countRows] = await db.execute("SELECT COUNT(*) as total FROM pendaftar WHERE nama LIKE ?", [`%${search}%`]);
-  const total = (countRows as any)[0].total;
-
-  // Query data dengan search & pagination
-  const [rows] = await db.execute(
+  const [rows] = await pool.execute<any[]>(
     "SELECT * FROM pendaftar WHERE nama LIKE ? ORDER BY id DESC LIMIT ? OFFSET ?",
     [`%${search}%`, limit, offset]
   );
+  const [countRows] = await pool.execute<mysql.RowDataPacket[]>(
+    "SELECT COUNT(*) as total FROM pendaftar WHERE nama LIKE ?",
+    [`%${search}%`]
+  );
+  const total = (countRows as mysql.RowDataPacket[])[0].total;
+  const totalPages = Math.ceil(total / limit);
 
-  return NextResponse.json({
-    data: rows,
-    total,
-    page,
-    totalPages: Math.ceil(total / limit),
-  });
+  return NextResponse.json(
+    {
+      data: rows,
+      totalPages,
+      total,
+    },
+    { headers: { "Cache-Control": "no-store" } }
+  );
 }

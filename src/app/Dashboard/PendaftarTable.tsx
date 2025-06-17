@@ -1,7 +1,7 @@
 "use client";
-import { useEffect, useState } from "react";
-import Swal from "sweetalert2";
 import jsPDF from "jspdf";
+import React, { useImperativeHandle, useState, useEffect, forwardRef } from "react";
+import Swal from "sweetalert2";
 
 // Mapping nama kolom database ke judul kolom yang diinginkan
 const COLUMN_LABELS: Record<string, string> = {
@@ -25,7 +25,7 @@ const COLUMNS_ORDER = [
   "created_at",
 ];
 
-export default function PendaftarTable() {
+const PendaftarTable = forwardRef((props, ref) => {
   const [data, setData] = useState<any[]>([]);
   const [columns, setColumns] = useState<string[]>([]);
   const [search, setSearch] = useState("");
@@ -35,21 +35,35 @@ export default function PendaftarTable() {
 
   const fetchData = async (q = search, p = page) => {
     setLoading(true);
-    const res = await fetch(`/api/pendaftar?search=${encodeURIComponent(q)}&page=${p}&limit=10`);
-    const json = await res.json();
-    setData(json.data);
-    setTotalPages(json.totalPages);
-    // Ambil kolom dari data pertama, urutkan sesuai COLUMNS_ORDER dan filter hanya yang ada di mapping
-    if (json.data && json.data.length > 0) {
-      setColumns(
-        COLUMNS_ORDER.filter((col) => Object.keys(json.data[0]).includes(col))
-      );
+    try {
+      const res = await fetch(`/api/pendaftar?search=${encodeURIComponent(q)}&page=${p}&limit=10`);
+      if (!res.ok) throw new Error("Gagal fetch data");
+      const json = await res.json();
+      setData(json.data);
+      setTotalPages(json.totalPages);
+      if (json.data && json.data.length > 0) {
+        setColumns(
+          COLUMNS_ORDER.filter((col) => Object.keys(json.data[0]).includes(col))
+        );
+      }
+    } catch {
+      setData([]);
+      setTotalPages(1);
     }
     setLoading(false);
   };
 
+  useImperativeHandle(ref, () => ({
+    refresh: () => fetchData(),
+  }));
+
   useEffect(() => {
     fetchData();
+    // eslint-disable-next-line
+  }, []);
+
+  useEffect(() => {
+    fetchData(search, page);
     // eslint-disable-next-line
   }, [page]);
 
@@ -139,14 +153,21 @@ export default function PendaftarTable() {
     });
 
     if (result.isConfirmed) {
-      // Panggil API hapus
+      Swal.fire({
+        title: "Menghapus...",
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        },
+      });
+
       const res = await fetch(`/api/pendaftar/${row.kode_registrasi}`, {
         method: "DELETE",
       });
+
       if (res.ok) {
         Swal.fire("Terhapus!", `Data ${row.nama} berhasil dihapus.`, "success");
-        // Refresh data tabel (panggil fetchData atau reload page)
-        fetchData(search, page);
+        fetchData(search, page); // refresh tabel
       } else {
         Swal.fire("Gagal!", "Data gagal dihapus.", "error");
       }
@@ -156,17 +177,16 @@ export default function PendaftarTable() {
   return (
     <div className="bg-white rounded-lg shadow p-6">
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-semibold text-black">Data Pendaftar</h2>
-        <form onSubmit={handleSearch} className="flex gap-2">
+        <h2 className="text-xl font-semibold text-gray-700">Data Pendaftar</h2>
+        <div className="flex gap-2">
           <input
             type="text"
             placeholder="Cari nama..."
-            className="border rounded px-2 py-1 text-sm w-36 text-gray-500"
+            className="border rounded px-2 py-1 text-sm w-36 text-black"
             value={search}
             onChange={e => setSearch(e.target.value)}
           />
-          <button type="submit" className="bg-blue-600 text-white px-3 py-1 rounded text-sm">Cari</button>
-        </form>
+        </div>
       </div>
       <div className="overflow-x-auto">
         <table className="min-w-full border border-gray-200 rounded-lg">
@@ -178,20 +198,23 @@ export default function PendaftarTable() {
                   {COLUMN_LABELS[col] || col}
                 </th>
               ))}
+              <th className="py-2 px-4 text-center font-semibold text-gray-600">Sudah Dicetak</th>
               <th className="py-2 px-4 text-left font-semibold text-gray-600">Aksi</th>
             </tr>
           </thead>
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan={columns.length + 1} className="py-8 text-center">
+                <td colSpan={columns.length + 3} className="py-8 text-center">
                   <span className="inline-block w-6 h-6 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin"></span>
                   <span className="ml-2 text-blue-600 font-semibold">Memuat data...</span>
                 </td>
               </tr>
             ) : data.length === 0 ? (
               <tr>
-                <td colSpan={columns.length + 1} className="text-center text-gray-500 py-8">Tidak ada data</td>
+                <td colSpan={columns.length + 3} className="py-12 text-center text-gray-500 text-lg font-semibold">
+                  Tidak ada data
+                </td>
               </tr>
             ) : (
               data.map((row, idx) => (
@@ -211,6 +234,15 @@ export default function PendaftarTable() {
                         : row[col] || "-"}
                     </td>
                   ))}
+                  {/* Kolom ceklis Sudah Dicetak */}
+                  <td className="py-2 px-4 text-center">
+                    {row.sudah_cetak === 1 || row.sudah_cetak === true ? (
+                      <svg className="w-6 h-6 text-green-500 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                      </svg>
+                    ) : null}
+                  </td>
+                  {/* Kolom aksi */}
                   <td className="py-2 px-4 flex gap-2 items-center">
   {/* Tombol Print */}
   <button
@@ -274,25 +306,37 @@ export default function PendaftarTable() {
         </table>
       </div>
       {/* Pagination */}
-      <div className="flex justify-between items-center mt-4">
-        <button
-          className="px-3 py-1 rounded bg-gray-200 text-gray-700"
-          onClick={() => setPage(p => Math.max(1, p - 1))}
-          disabled={page === 1}
-        >
-          Prev
-        </button>
-        <span className="px-3 py-1 rounded bg-gray-200 text-gray-700">
-          Halaman <b>{page}</b> dari <b>{totalPages}</b>
-        </span>
-        <button
-          className="px-3 py-1 rounded bg-gray-200 text-gray-700"
-          onClick={() => setPage(p => Math.min(totalPages, p + 1))}
-          disabled={page === totalPages}
-        >
-          Next
-        </button>
-      </div>
+      <div className="flex justify-end mt-4 gap-2">
+  <button
+    onClick={() => setPage(page - 1)}
+    disabled={page === 1 || loading}
+    className={`px-4 py-1 rounded bg-blue-500 text-white font-semibold transition-all duration-200
+      ${page === 1 || loading
+        ? "opacity-50 cursor-not-allowed"
+        : "hover:bg-blue-600 scale-105 active:scale-95 shadow-md"
+      }`}
+    style={{ minWidth: 80 }}
+  >
+    Prev
+  </button>
+  <span className="px-3 py-1 text-gray-700 font-semibold">
+    {page} / {totalPages}
+  </span>
+  <button
+    onClick={() => setPage(page + 1)}
+    disabled={page === totalPages || loading}
+    className={`px-4 py-1 rounded bg-blue-500 text-white font-semibold transition-all duration-200
+      ${page === totalPages || loading
+        ? "opacity-50 cursor-not-allowed"
+        : "hover:bg-blue-600 scale-105 active:scale-95 shadow-md"
+      }`}
+    style={{ minWidth: 80 }}
+  >
+    Next
+  </button>
+</div>
     </div>
   );
-}
+});
+
+export default PendaftarTable;
