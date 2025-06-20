@@ -101,8 +101,6 @@ PPDB-TK/
 Kontribusi, saran, dan masukan sangat terbuka!  
 Silakan buat issue atau pull request jika ingin berkolaborasi.
 
----
-
 > **Copyright**
 >
 > &copy; 2025 PPDB TK.  
