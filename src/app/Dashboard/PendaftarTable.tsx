@@ -104,7 +104,7 @@ const PendaftarTable = forwardRef((props, ref) => {
     return `${tanggal}/${bulan}/${tahun} ${jam}:${menit}`;
   }
 
-  const handleCetakPDF = (row: any) => {
+  const handleCetakPDF = async (row: any) => {
     const doc = new jsPDF();
 
     // Data statis
@@ -138,6 +138,20 @@ const PendaftarTable = forwardRef((props, ref) => {
 
     // Tampilkan PDF
     doc.save(`bukti-ppdb-${row.kode_registrasi || "pendaftar"}.pdf`);
+
+    // Update status sudah_cetak di database
+    try {
+      const res = await fetch(`/api/pendaftar/${row.kode_registrasi}/cetak`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sudah_cetak: 1 }),
+      });
+      if (res.ok) {
+        fetchData(search, page); // refresh tabel
+      }
+    } catch (e) {
+      // Optional: tampilkan error jika gagal update
+    }
   };
 
   const handleHapus = async (row: any) => {

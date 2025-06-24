@@ -1,17 +1,23 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import mysql from "mysql2/promise";
 
-export async function POST(request: Request, { params }: { params: { kode_registrasi: string } }) {
-  const db = await mysql.createConnection({
-    host: process.env.DB_HOST,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASS,
-    database: process.env.DB_NAME,
-  });
+const pool = mysql.createPool({
+  host: process.env.DB_HOST || "localhost",
+  user: process.env.DB_USER || "root",
+  password: process.env.DB_PASS || "",
+  database: process.env.DB_NAME || "db_registrasi",
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0,
+});
 
-  await db.execute(
-    "UPDATE pendaftar SET sudah_cetak=1 WHERE kode_registrasi = ?",
-    [params.kode_registrasi]
+export async function PUT(request: NextRequest, { params }: { params: { kode_registrasi: string } }) {
+  const { kode_registrasi } = params;
+  const body = await request.json();
+
+  await pool.execute(
+    "UPDATE pendaftar SET sudah_cetak = ? WHERE kode_registrasi = ?",
+    [body.sudah_cetak, kode_registrasi]
   );
 
   return NextResponse.json({ success: true });
