@@ -20,23 +20,7 @@ export default function DashboardClient() {
 
   return (
     <div className="min-h-screen bg-gray-100 flex">
-      {/* Sidebar */}
-      <aside className="w-64 bg-white shadow-lg hidden md:flex flex-col">
-        <div className="h-20 flex items-center justify-center border-b">
-          <span className="text-xl font-bold text-blue-600">PPDB Admin</span>
-        </div>
-        <nav className="flex-1 px-4 py-6 space-y-2">
-          <a className="flex items-center px-4 py-2 rounded-lg bg-blue-100 text-blue-700 font-semibold" href="/Dashboard">
-            <span className="mr-3">🏠</span> Dashboard
-          </a>
-          <a className="flex items-center px-4 py-2 rounded-lg hover:bg-gray-100" href="/Formulir">
-            <span className="mr-3">📋</span> Data isi formulir
-          </a>
-          <a className="flex items-center px-4 py-2 rounded-lg hover:bg-gray-100" href="/Laporan">
-            <span className="mr-3">📑</span> Laporan
-          </a>
-        </nav>
-      </aside>
+ 
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col">
